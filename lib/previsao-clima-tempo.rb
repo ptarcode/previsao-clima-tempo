@@ -33,13 +33,13 @@ class PrevisaoClimaTempo
      
      days = self.days(14)
      
-     dayClone = Object
+     day = Object
      
-     days.each do |day|
-       break dayClone = day if day.dia == date.strftime("%d-%m-%Y")   
+     days.each do |dayEach|
+       break day = dayEach if dayEach.dia == date.strftime("%d-%m-%Y")   
      end
      
-     dayClone
+     day
       
    end
    
@@ -85,11 +85,7 @@ class PrevisaoClimaTempo
   #
    def tomorrow()
       
-      date = Time.now + 1.days
-      
-      tomorrow = self.day(date)
-      
-      tomorrow
+      self.day(Time.now + 1.days)
       
    end
    
@@ -105,11 +101,7 @@ class PrevisaoClimaTempo
   #
    def now()
       
-      date = Time.now
-      
-      now = self.day(date)
-      
-      now
+      self.day(Time.now)
       
    end
       
@@ -129,7 +121,7 @@ class PrevisaoClimaTempo
       
       cities = Array.new
       
-      request ||= self.request(url)
+      request ||= request(url)
       
       request.xpath('//cidades/cidade').each do |cidadePath|
      
@@ -180,11 +172,11 @@ class PrevisaoClimaTempo
   #
    def loadDays(url,days,limit)
       
-      previsoes ||= self.request(url)
+      previsoes ||= request(url)
       
       previsoes.xpath('//cidade/previsao').each do |previsao|
      
-        days << self.assign(previsao) if days.size < limit 
+        days << assign(previsao) if days.size < limit 
       
       end
       
@@ -204,13 +196,13 @@ class PrevisaoClimaTempo
   #
    def assign(previsao)
      
-     previsaoDia = PrevisaoDia.new(previsao.at_xpath('dia').text,
-                                   previsao.at_xpath('tempo').text,
-                                   previsao.at_xpath('maxima').text,
-                                   previsao.at_xpath('minima').text,
-                                   previsao.at_xpath('iuv') ? previsao.at_xpath('iuv').text : "Nao informado.")
+     PrevisaoDia.new(previsao.at_xpath('dia').text,
+                     previsao.at_xpath('tempo').text,
+                     previsao.at_xpath('maxima').text,
+                     previsao.at_xpath('minima').text,
+                     previsao.at_xpath('iuv') ? previsao.at_xpath('iuv').text : "Nao informado.")
      
-     previsaoDia
+
      
    end
   

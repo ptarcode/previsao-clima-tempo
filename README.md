@@ -1,6 +1,6 @@
-# Previsao::Clima::Tempo
+# PrevisaoClimaTempo
 
-TODO: Write a gem description
+Permiti o acesso as funcionalidades e informações do Clima Tempo.
 
 ## Installation
 
@@ -17,13 +17,26 @@ Or install it yourself as:
     $ gem install previsao-clima-tempo
 
 ## Usage
+	 
+	 Instanciando um objeto.Pro padrão o código da cidade deve ser informado.
+     PrevisaoClimaTempo.new(:codCity => '3156')
+     
+     
+     Devolve um objeto PrevisaoDia com as informações do dia atual.
+     PrevisaoClimaTempo.new(:codCity => '3156').now
+     
+     Devolve um objeto PrevisaoDia com as informações do dia seguinte.
+     PrevisaoClimaTempo.new(:codCity => '3156').tomorrow
+     
+     Devolve um collection  de objetos PrevisaoDia com as informações dos dias referenciados.
+     PrevisaoClimaTempo.new(:codCity => '3156').days(13) máximo de 13 dias a partir do dia atual
+     
+     Devolve um objeto PrevisaoDia com as informações do dia referenciado.
+     PrevisaoClimaTempo.new(:codCity => '3156').day(date) 
+ 
 
-TODO: Write usage instructions here
+## Dependencies
 
-## Contributing
-
-1. Fork it
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create new Pull Request
+<ul>
+<li><a href="http://nokogiri.org">nokogiri</a></li>
+</ul>
