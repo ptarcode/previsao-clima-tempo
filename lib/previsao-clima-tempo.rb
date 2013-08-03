@@ -1,8 +1,8 @@
-require "previsao-clima-tempo/version"
-require "previsao-clima-tempo/previsao_dia.rb"
 #!/bin/env ruby
 # encoding: utf-8
 
+require "previsao-clima-tempo/version"
+require "previsao-clima-tempo/previsao_dia"
 require 'open-uri'
 require "nokogiri"
 
@@ -19,25 +19,7 @@ class PrevisaoClimaTempo
   end
   
   
-  # Devolve o doc xml
-  #
-  # Example:
-  #   >> PrevisaoClimaTempo.request(url)
-  #
-  # Arguments:
-  #   url: (String)
-  #
-  def request(url)
-      begin
-        
-         Nokogiri::XML(open(url))
-      
-      rescue SocketError => e
-            @notice = "Nao foi possivel se cnectar ao servico"
-      end
-   end
-   
-   
+  
   # Devolve a previsão para a data informada,
   # no máximo a data atual + 13 dias
   #
@@ -49,14 +31,12 @@ class PrevisaoClimaTempo
   #
    def day(date)
      
-     raise ArgumentError unless date.date date
-     
      days = self.days(14)
      
      dayClone = Object
      
      days.each do |day|
-       break dayClone = day if day.dia.to_date == date   
+       break dayClone = day if day.dia == date.strftime("%d-%m-%Y")   
      end
      
      dayClone
@@ -94,31 +74,6 @@ class PrevisaoClimaTempo
    end
    
    
-  # Devolve uma coleção de objetos,
-  # no máximo a data atual + 13 dias
-  #
-  # 
-  #
-  # Arguments:
-  #   url:   (String)
-  #   days: (Integer)
-  #   limit: (Integer)
-  #
-   def loadDays(url,days,limit)
-      
-      previsoes ||= self.request(url)
-      
-      previsoes.xpath('//cidade/previsao').each do |previsao|
-     
-        days << self.assign(previsao) if days.size < limit 
-      
-      end
-      
-      days
-      
-   end
-   
-   
   # Devolve um objeto com
   # as condiões do tempo do 
   # dia seguinte
@@ -132,7 +87,7 @@ class PrevisaoClimaTempo
       
       date = Time.now + 1.days
       
-      tomorrow = self.day(date.strftime("%d-%m-%Y"))
+      tomorrow = self.day(date)
       
       tomorrow
       
@@ -152,7 +107,7 @@ class PrevisaoClimaTempo
       
       date = Time.now
       
-      now = self.day(date.strftime("%d-%m-%Y"))
+      now = self.day(date)
       
       now
       
@@ -191,6 +146,52 @@ class PrevisaoClimaTempo
       cities
       
    end
+   
+   private
+  # Devolve o doc xml
+  #
+  # Example:
+  #   >> PrevisaoClimaTempo.request(url)
+  #
+  # Arguments:
+  #   url: (String)
+  #
+  def request(url)
+      begin
+        
+         Nokogiri::XML(open(url))
+      
+      rescue SocketError => e
+            raise "Request failed, without connection to server."
+      end
+   end
+   
+     
+   
+  # Devolve uma coleção de objetos,
+  # no máximo a data atual + 13 dias
+  #
+  # 
+  #
+  # Arguments:
+  #   url:   (String)
+  #   days: (Integer)
+  #   limit: (Integer)
+  #
+   def loadDays(url,days,limit)
+      
+      previsoes ||= self.request(url)
+      
+      previsoes.xpath('//cidade/previsao').each do |previsao|
+     
+        days << self.assign(previsao) if days.size < limit 
+      
+      end
+      
+      days
+      
+   end
+    
          
    
   # Efetua o assign do objeto PrevisaoDia

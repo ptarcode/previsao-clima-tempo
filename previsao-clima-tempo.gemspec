@@ -11,10 +11,14 @@ Gem::Specification.new do |gem|
   gem.email         = ["paulopjazz@gmail.com"]
   gem.description   = "Garante as funcionalidades oferecidas pelo clima tempo."
   gem.summary       = "Oferece a previsão do tempo do Brasil."
-  gem.homepage      = ""
+  gem.homepage      = "https://github.com/ptarco/previsao-clima-tempo"
 
   gem.files         = `git ls-files`.split($/)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.require_paths = ["lib"]
+  
+  
+  gem.add_dependency "nokogiri", ">= 1.5.9"
+  
 end
