@@ -6,10 +6,11 @@ require 'previsao-clima-tempo/version'
 Gem::Specification.new do |gem|
   gem.name          = "previsao-clima-tempo"
   gem.version       = Previsao::Clima::Tempo::VERSION
-  gem.authors       = ["paulo"]
-  gem.email         = ["TODO: Write your email address"]
-  gem.description   = %q{TODO: Write a gem description}
-  gem.summary       = %q{TODO: Write a gem summary}
+  gem.platform      = Gem::Platform::RUBY
+  gem.authors       = ["Paulo de Tarço"]
+  gem.email         = ["paulopjazz@gmail.com"]
+  gem.description   = "Garante as funcionalidades oferecidas pelo clima tempo."
+  gem.summary       = "Oferece a previsão do tempo do Brasil."
   gem.homepage      = ""
 
   gem.files         = `git ls-files`.split($/)
