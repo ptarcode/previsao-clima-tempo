@@ -12,7 +12,7 @@ class PrevisaoClimaTempo
   attr_reader       :codCity
   
   def initialize(option)
-    raise TypeError unless option.kind_of? Hash
+    raise TypeError     unless option.kind_of? Hash
     raise ArgumentError unless option.has_key? :codCity
 
     @codCity = option[:codCity]
@@ -20,11 +20,11 @@ class PrevisaoClimaTempo
   
   
   
-  # Devolve a previsão para a data informada,
-  # no máximo a data atual + 13 dias
+  # Returns the forecast for the date informed,
+  # maximum current date + 13 days from webservice
   #
   # Example:
-  #   >> PrevisaoClimaTempo.day("02-03-2012".to_date)
+  #   >> PrevisaoClimaTempo.new(:codCity => '314').day("02-03-2012".to_date)
   #
   # Arguments:
   #   date: (Date)
@@ -44,11 +44,10 @@ class PrevisaoClimaTempo
    end
    
    
-  # Devolve uma coleção de objetos,
-  # no máximo a data atual + 13 dias
-  #
+  # Returns a collection of objects PrevisaoDia,
+  # the maximum current date + 13 days from webservice
   # Example:
-  #   >> PrevisaoClimaTempo.days(4)
+  #   >> PrevisaoClimaTempo.new(:codCity => '314').days(4)
   #
   # Arguments:
   #   qtdDays: (Integer)
@@ -74,12 +73,12 @@ class PrevisaoClimaTempo
    end
    
    
-  # Devolve um objeto com
-  # as condiões do tempo do 
-  # dia seguinte
+  # Returns an object with
+  # the conditions of weather
+  # next day from webservice
   #
   # Example:
-  #   >> PrevisaoClimaTempo.tomorrow()
+  #   >> PrevisaoClimaTempo.new(:codCity => '314').tomorrow
   #
   # Arguments:
   #
@@ -90,25 +89,116 @@ class PrevisaoClimaTempo
    end
    
    
-  # Devolve um objeto com
-  # as condiões do tempo do 
-  # dia atual
+  # Returns a hash of condtions of weather from page.
+  # It's more complete than the webservice
   #
   # Example:
-  #   >> PrevisaoClimaTempo.now()
+  #   >> PrevisaoClimaTempo.new(:codCity => '314').nowFromPage
   #
   # Arguments:
   #
-   def now()
+   def nowFromPage
+     request ||= requestHtml
+     {
+        :last_update => request.xpath("//span[@class='paragrafo-padrao']").text,
+        :wind        => { :velocity  => request.xpath("//li[@class='dados-momento-li list-style-none'][4]/span[2]").text,
+                          :direction => wind[request.xpath("//li[@class='dados-momento-li list-style-none'][1]/span[2]").text]
+                        },
+        :moisture    => request.xpath("//li[@class='dados-momento-li list-style-none'][5]/span[2]").text,
+        :condition   => request.xpath("//li[@class='dados-momento-li list-style-none'][2]/span[2]").text,
+        :pression    => request.xpath("//li[@class='dados-momento-li list-style-none'][3]/span[2]").text,
+        :temperature => request.xpath("//span[@class='left temp-momento top10']").text
+     }
+   end
+   
+  # Returns a hash of condtions of weather whith 5 days from page.
+  # 
+  # It's more complete than the webservice
+  #
+  # Example:
+  #   >> PrevisaoClimaTempo.new(:codCity => '314').fullFromPage
+  #
+  # Arguments:
+  #
+   def fullFromPage
+     
+    request ||= requestHtml
+    
+    @previsoes = Hash.new
+    count = 1
+    
+    until count > 5 do
+         @previsoes[count] = {    
+                                  :last_update                  => request.xpath("//p[@class='clear left paragrafo-padrao']").text[/(\d+)/]+":00",
+                                  :date                         => request.xpath("//div[@class='box-prev-completa'][#{count}]//span[@class='data-prev']").text.strip+"/"+Time.now().year.to_s,
+                                  :condition                    => request.xpath("//div[@class='box-prev-completa'][#{count}]/span[@class='left left5 paragrafo-padrao top10 fraseologia-prev']").text.strip,
+                                  :wind                         => request.xpath("//div[@class='box-prev-completa'][#{count}]//li[@class='velocidade-vento-prev-completa list-style-none']/span[2]").text.strip,
+                                  :probability_of_precipitation => request.xpath("//div[@class='box-prev-completa'][#{count}]//li[@class='prob-chuva-prev-completa list-style-none']/span[2]").text.strip,
+                                  :moisture_relative_complete   => { :max => request.xpath("//div[@class='box-prev-completa'][#{count}]//li[@class='umidade-relativa-prev-completa list-style-none']/span[2]").text.strip,
+                                                                     :min => request.xpath("//div[@class='box-prev-completa'][#{count}]//li[@class='umidade-relativa-prev-completa list-style-none']/span[3]").text.strip},
+                                  :temperature                  => { :max => request.xpath("//div[@class='box-prev-completa'][#{count}]//span[@class='max']").text.strip,
+                                                                     :min => request.xpath("//div[@class='box-prev-completa'][#{count}]//span[@class='min']").text.strip},
+                                  :uv                           => request.xpath("//div[@class='box-prev-completa'][#{count}]//p[@class='left left10 top10 paragrafo-padrao uv-size']/span[1]").text.strip,
+                                  :sunrise                      => request.xpath("//div[@class='box-prev-completa'][#{count}]//div[@class='por-do-sol']/span[3]").text.strip,
+                                  :sunset                       => request.xpath("//div[@class='box-prev-completa'][#{count}]//div[@class='por-do-sol']/span[6]").text.strip
+                              }
+                              
+         @previsoes[count][:wind] = { :velocity  => @previsoes[count][:wind][/(\d+)/]+"km/h" ,
+                                      :direction => wind[@previsoes[count][:wind].gsub("#{@previsoes[count][:wind][/(\d+)/]}km/h","")]
+                                    }
+         @probability_of_precipitation = @previsoes[count][:probability_of_precipitation].split('mm')                           
+                                    
+         @previsoes[count][:probability_of_precipitation] = { :volume     => @probability_of_precipitation[0]+"mm" ,
+                                                              :percentage => @probability_of_precipitation[1]
+                                                            }
+          
+        count+=1
+      end
       
-      self.day(Time.now)
+      @previsoes
       
    end
-      
    
-  # Devolve uma coleção de hashs
-  # com as cidades compreendidas 
-  # pelo clima tempo
+  # Returns a hash of condtions of weather whith 5 days from page.
+  # If today is 16-12-2013 returns 21,22,23,24,25 trends.
+  # It's more complete than the webservice 
+  #
+  # Example:
+  #   >> PrevisaoClimaTempo.new(:codCity => '314').trendsFromPage
+  #
+  # Arguments:
+  #
+   def trendsFromPage
+     
+     request ||= requestHtml
+      
+     @previsoes = Hash.new
+     count = 1
+        
+     until count > 5 do
+         @previsoes[count] = {
+                                  :date                         => request.xpath("//div[@class='box-prev-tendencia'][#{count}]//span[@class='data-prev']").text.strip+"/"+Time.now().year.to_s,
+                                  :condition                    => request.xpath("//div[@class='box-prev-tendencia'][#{count}]//div[@class='frase-previsao-prev-tendencia']").text.strip,
+                                  :probability_of_precipitation => request.xpath("//div[@class='box-prev-completa'][#{count}]//li[@class='prob-chuva-prev-completa list-style-none']/span[2]").text.strip,
+                                  :temperature                  => { :max => request.xpath("//div[@class='box-prev-tendencia'][#{count}]//span[@class='max']").text.strip,
+                                                                     :min => request.xpath("//div[@class='box-prev-tendencia'][#{count}]//span[@class='min']").text.strip}
+                              }
+                                    
+         @probability_of_precipitation = @previsoes[count][:probability_of_precipitation].split('mm')                           
+                                    
+         @previsoes[count][:probability_of_precipitation] = { :volume     => @probability_of_precipitation[0]+"mm" ,
+                                                              :percentage => @probability_of_precipitation[1]
+                                                            }
+         count+=1
+      end
+      
+      @previsoes
+      
+   end
+   
+   private
+   
+  # Returns a hash of cities with code, name and abbreviation of the state
   #
   # Example:
   #   >> PrevisaoClimaTempo.cities()
@@ -121,15 +211,15 @@ class PrevisaoClimaTempo
       
       cities = Array.new
       
-      request ||= request(url)
+      request ||= requestXml(url)
       
       request.xpath('//cidades/cidade').each do |cidadePath|
      
          cidade = Hash.new
          
-         cidade[:id]   = cidadePath.at_xpath('id').text
-         cidade[:uf]   = cidadePath.at_xpath('uf').text
-         cidade[:nome] = cidadePath.at_xpath('nome').text
+         cidade[:id]   = cidadePath.at_xpath('id').text.strip
+         cidade[:uf]   = cidadePath.at_xpath('uf').text.strip
+         cidade[:nome] = cidadePath.at_xpath('nome').text.strip
          
          cities << cidade
       
@@ -138,17 +228,33 @@ class PrevisaoClimaTempo
       cities
       
    end
+      
+   def wind
+     {
+       "N" => "Norte",
+       "S" => "Sul",
+       "E" => "Leste",
+       "W" => "Oeste",
+       "NE" => "Nordeste",
+       "NW" => "Noroeste",
+       "SE" => "Sudeste",
+       "SW" => "Sudoeste",
+       "ENE" => "Lés-nordeste",
+       "ESE" => "Lés-sudeste",
+       "SSE" => "Su-sudeste",
+       "NNE" => "Nor-nordeste",
+       "NNW" => "Nor-noroeste",
+       "SSW" => "Su-sudoeste",
+       "WSW" => "Oés-sudoeste",
+       "WNW" => "Oés-noroeste"
+     }
+   end
    
-   private
-  # Devolve o doc xml
-  #
-  # Example:
-  #   >> PrevisaoClimaTempo.request(url)
-  #
+
   # Arguments:
   #   url: (String)
   #
-  def request(url)
+  def requestXml(url)
       begin
         
          Nokogiri::XML(open(url))
@@ -158,13 +264,13 @@ class PrevisaoClimaTempo
       end
    end
    
-     
+
+   def requestHtml
+      request = Net::HTTP.get URI.parse("http://www.climatempo.com.br/previsao-do-tempo/cidade/#{@codCity}/empty")
+      request = Nokogiri::HTML request
+    end
    
-  # Devolve uma coleção de objetos,
-  # no máximo a data atual + 13 dias
-  #
-  # 
-  #
+
   # Arguments:
   #   url:   (String)
   #   days: (Integer)
@@ -172,7 +278,7 @@ class PrevisaoClimaTempo
   #
    def loadDays(url,days,limit)
       
-      previsoes ||= request(url)
+      previsoes ||= requestXml(url)
       
       previsoes.xpath('//cidade/previsao').each do |previsao|
      
@@ -185,15 +291,6 @@ class PrevisaoClimaTempo
    end
     
          
-   
-  # Efetua o assign do objeto PrevisaoDia
-  #  
-  #  
-  # Example:
-  #   >> PrevisaoClimaTempo.assign(previsao)
-  #
-  # Arguments:
-  #
    def assign(previsao)
      
      PrevisaoDia.new(previsao.at_xpath('dia').text,

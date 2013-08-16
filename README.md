@@ -18,22 +18,84 @@ Or install it yourself as:
 
 ## Usage
 	 
-	 Instanciando um objeto.Pro padrão o código da cidade deve ser informado.
+	 #From Webservice
+	 
+	 Instantiating a object.The city code should be informed.
      PrevisaoClimaTempo.new(:codCity => '3156')
      
-     
-     Devolve um objeto PrevisaoDia com as informações do dia atual.
+     Returns an object PrevisaoDia with information from the current day.
      PrevisaoClimaTempo.new(:codCity => '3156').now
      
-     Devolve um objeto PrevisaoDia com as informações do dia seguinte.
+     Returns an object PrevisaoDia with information the next day.
      PrevisaoClimaTempo.new(:codCity => '3156').tomorrow
      
-     Devolve um collection  de objetos PrevisaoDia com as informações dos dias referenciados.
-     PrevisaoClimaTempo.new(:codCity => '3156').days(13) máximo de 13 dias a partir do dia atual
+     Returns a collection of objects PrevisaoDia with information of days referenced.
+     PrevisaoClimaTempo.new(:codCity => '3156').days(13) maximum of 13 days from the current day
      
-     Devolve um objeto PrevisaoDia com as informações do dia referenciado.
-     PrevisaoClimaTempo.new(:codCity => '3156').day(date) 
- 
+     Returns an object PrevisaoDia with information the day referenced.
+     PrevisaoClimaTempo.new(:codCity => '3156').day(date)
+     
+     #From Page(contains more information than is extracted from the webservice)
+     
+     Returns a hash of condtions of weather from page
+	 PrevisaoClimaTempo.new(:codCity => '314').nowFromPage
+	 return:
+	 
+	 {
+		:last_update: 18:00
+		:wind:
+		  :velocity: 3 Km/h
+		  :direction: Su-sudeste
+		:moisture: 91%
+		:condition: Poucas nuvens
+		:pression: 1022 hPa
+		:temperature: 13ºC  
+ 	 }
+ 	 
+     Returns a hash of condtions of weather whith 5 days from page.
+  	 PrevisaoClimaTempo.new(:codCity => '314').fullFromPage
+	 return:
+	 
+	 {
+		1:
+		  :last_update: 19:00
+		  :date: Sábado, 17/08/2013
+		  :condition: Sol com muitas nuvens durante o dia e períodos de céu nublado. Noite
+		    com muitas nuvens.
+		  :wind:
+		    :velocity: 6km/h
+		    :direction: Su-sudeste
+		  :probability_of_precipitation:
+		    :volume: 0mm
+		    :percentage: 0%
+		  :moisture_relative_complete:
+		    :max: 100%
+		    :min: 49%
+		  :temperature:
+		    :max: 16º
+		    :min: 7º
+		  :uv: Alto
+		  :sunrise: 06h13
+		  :sunset: 17h36
+		2: ...
+ 	 }
+ 	 
+	 Returns a hash of condtions of weather whith 5 days from page.
+	 If today is 16-12-2013 returns 21,22,23,24,25 trends.
+  	 PrevisaoClimaTempo.new(:codCity => '314').trendsFromPage
+	 return:
+	 {
+		1:
+		  :date: Quinta-Feira, 22/08/2013
+		  :condition: Sol com algumas nuvens. Não chove.
+		  :probability_of_precipitation:
+		    :volume: 0mm
+		    :percentage: 0%
+		  :temperature:
+		    :max: 23º
+		    :min: 7º
+		2: 
+ 	 }
 
 ## Dependencies
 

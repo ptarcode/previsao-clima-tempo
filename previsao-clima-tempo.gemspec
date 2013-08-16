@@ -9,9 +9,10 @@ Gem::Specification.new do |gem|
   gem.platform      = Gem::Platform::RUBY
   gem.authors       = ["Paulo de Tarço"]
   gem.email         = ["paulopjazz@gmail.com"]
-  gem.description   = "Garante as funcionalidades oferecidas pelo clima tempo."
-  gem.summary       = "Oferece a previsão do tempo do Brasil."
+  gem.description   = "Communication with Clima Tempo accessing information about the weather of Brazil"
+  gem.summary       = gem.summary
   gem.homepage      = "https://github.com/ptarco/previsao-clima-tempo"
+  gem.licenses      = ['MIT']
 
   gem.files         = `git ls-files`.split($/)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }

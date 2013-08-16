@@ -1,7 +1,7 @@
 module Previsao
   module Clima
     module Tempo
-      VERSION = "0.0.10"
+      VERSION = "0.1.3"
     end
   end
 end

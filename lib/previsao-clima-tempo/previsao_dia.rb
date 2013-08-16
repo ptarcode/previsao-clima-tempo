@@ -6,12 +6,13 @@ class PrevisaoDia
   attr_reader      :dia,:tempo,:maxima,:minima,:iuv
   attr_writer      :dia,:tempo,:maxima,:minima,:iuv
   
-  def initialize(dia,tempo,maxima,minima,iuv)
-    @dia      = dayFormat(dia) 
-    @tempo    = tempoLabel[tempo]  
-    @maxima   = maxima  
-    @minima   = minima  
-    @iuv      = iuv 
+  def initialize(dia,tempo,maxima,minima,iuv, temperatura = "not found")
+    @dia         = dayFormat(dia) 
+    @tempo       = tempo.length > 3 ? tempo : tempoLabel[tempo]  
+    @maxima      = maxima  
+    @minima      = minima  
+    @iuv         = iuv
+    @temperatura = temperatura 
   end
   
   def dayFormat(dia)
