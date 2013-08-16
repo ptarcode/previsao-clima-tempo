@@ -18,7 +18,7 @@ Or install it yourself as:
 
 ## Usage
 	 
-	 ### From Webservice
+From Webservice
 	 
 	 Instantiating a object.The city code should be informed.
      PrevisaoClimaTempo.new(:codCity => '3156')
@@ -35,7 +35,7 @@ Or install it yourself as:
      Returns an object PrevisaoDia with information the day referenced.
      PrevisaoClimaTempo.new(:codCity => '3156').day(date)
      
-     ### From Page(contains more information than is extracted from the webservice)
+From Page(contains more information than is extracted from the webservice)
      
      Returns a hash of condtions of weather from page
 	 PrevisaoClimaTempo.new(:codCity => '314').nowFromPage
