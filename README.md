@@ -1,4 +1,4 @@
-# PrevisaoClimaTempo
+# PrevisaoClimaTempo - VERSION = "0.1.4"
 
 Communication with Clima Tempo accessing information about the weather of Brazil.
 
