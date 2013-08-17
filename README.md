@@ -1,6 +1,6 @@
 # PrevisaoClimaTempo
 
-Permiti o acesso as funcionalidades e informações do Clima Tempo.
+Communication with Clima Tempo accessing information about the weather of Brazil.
 
 ## Installation
 
