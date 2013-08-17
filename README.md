@@ -21,26 +21,26 @@ Or install it yourself as:
 	 
 From Webservice
 	 
-	 Instantiating a object.The city code should be informed.
+Instantiating a object.The city code should be informed.
      PrevisaoClimaTempo.new(:codCity => '3156')
      
-     Returns an object PrevisaoDia with information from the current day.
+Returns an object PrevisaoDia with information from the current day.
      PrevisaoClimaTempo.new(:codCity => '3156').now
      
-     Returns an object PrevisaoDia with information the next day.
+Returns an object PrevisaoDia with information the next day.
      PrevisaoClimaTempo.new(:codCity => '3156').tomorrow
      
-     Returns a collection of objects PrevisaoDia with information of days referenced.
+Returns a collection of objects PrevisaoDia with information of days referenced.
      PrevisaoClimaTempo.new(:codCity => '3156').days(13) maximum of 13 days from the current day
      
-     Returns an object PrevisaoDia with information the day referenced.
+Returns an object PrevisaoDia with information the day referenced.
      PrevisaoClimaTempo.new(:codCity => '3156').day(date)
      
 From Page(contains more information than is extracted from the webservice)
      
-     Returns a hash of condtions of weather from page
+Returns a hash of condtions of weather from page
 	 PrevisaoClimaTempo.new(:codCity => '314').nowFromPage
-	 return:
+return:
 	 
 	 {
 		:last_update: 18:00
@@ -53,9 +53,9 @@ From Page(contains more information than is extracted from the webservice)
 		:temperature: 13ºC  
  	 }
  	 
-     Returns a hash of condtions of weather whith 5 days from page.
+Returns a hash of condtions of weather whith 5 days from page.
   	 PrevisaoClimaTempo.new(:codCity => '314').fullFromPage
-	 return:
+return:
 	 
 	 {
 		1:
@@ -81,10 +81,10 @@ From Page(contains more information than is extracted from the webservice)
 		2: ...
  	 }
  	 
-	 Returns a hash of condtions of weather whith 5 days from page.
-	 If today is 16-12-2013 returns 21,22,23,24,25 trends.
+Returns a hash of condtions of weather whith 5 days from page.
+If today is 16-12-2013 returns 21,22,23,24,25 trends.
   	 PrevisaoClimaTempo.new(:codCity => '314').trendsFromPage
-	 return:
+return:
 	 {
 		1:
 		  :date: Quinta-Feira, 22/08/2013
