@@ -9,13 +9,17 @@ require "nokogiri"
 class PrevisaoClimaTempo 
   
   
-  attr_reader       :codCity
+  attr_reader       :codCity, :lang, :lat, :long
   
   def initialize(option)
-    raise TypeError     unless option.kind_of? Hash
-    raise ArgumentError unless option.has_key? :codCity
-
-    @codCity = option[:codCity]
+     
+      raise TypeError     unless option.kind_of? Hash
+      
+      # @lang      = option.has_key? :lang    ? option[:lang]    : "br"
+      @codCity ||= option[:codCity]
+      @lat     ||= option[:lat]
+      @long    ||= option[:long]
+    
   end
   
   
@@ -88,6 +92,27 @@ class PrevisaoClimaTempo
       
    end
    
+  # Returns an object with
+  # the conditions of weather
+  # next day from webservice
+  #
+  # Example:
+  #   >> PrevisaoClimaTempo.new(:codCity => '314').tomorrow
+  #
+  # Arguments:
+  #
+   def byLatitude()
+      
+      days = Array.new
+   
+      url    = "http://servicos.cptec.inpe.br/XML/cidade/7dias/#{@lat}/#{@long}/previsaoLatLon.xml"
+      
+      loadDays(url,days,7)
+      
+      days
+      
+   end
+   
    
   # Returns a hash of condtions of weather from page.
   # It's more complete than the webservice
@@ -102,7 +127,7 @@ class PrevisaoClimaTempo
      {
         :last_update => request.xpath("//span[@class='paragrafo-padrao']").text,
         :wind        => { :velocity  => request.xpath("//li[@class='dados-momento-li list-style-none'][4]/span[2]").text,
-                          :direction => wind[request.xpath("//li[@class='dados-momento-li list-style-none'][1]/span[2]").text]
+                         :direction => wind['br'][request.xpath("//li[@class='dados-momento-li list-style-none'][1]/span[2]").text]
                         },
         :moisture    => request.xpath("//li[@class='dados-momento-li list-style-none'][5]/span[2]").text,
         :condition   => request.xpath("//li[@class='dados-momento-li list-style-none'][2]/span[2]").text,
@@ -132,8 +157,10 @@ class PrevisaoClimaTempo
                                   :last_update                  => request.xpath("//p[@class='clear left paragrafo-padrao']").text[/(\d+)/]+":00",
                                   :date                         => request.xpath("//div[@class='box-prev-completa'][#{count}]//span[@class='data-prev']").text.strip+"/"+Time.now().year.to_s,
                                   :condition                    => request.xpath("//div[@class='box-prev-completa'][#{count}]/span[@class='left left5 paragrafo-padrao top10 fraseologia-prev']").text.strip,
-                                  :wind                         => request.xpath("//div[@class='box-prev-completa'][#{count}]//li[@class='velocidade-vento-prev-completa list-style-none']/span[2]").text.strip,
-                                  :probability_of_precipitation => request.xpath("//div[@class='box-prev-completa'][#{count}]//li[@class='prob-chuva-prev-completa list-style-none']/span[2]").text.strip,
+                                  :wind                         => { :direction  => wind["br"][request.xpath("//div[@class='box-prev-completa'][#{count}]//li[@class='velocidade-vento-prev-completa list-style-none']//span//a[1]").text.strip],
+                                                                     :velocity   => request.xpath("//div[@class='box-prev-completa'][#{count}]//li[@class='velocidade-vento-prev-completa list-style-none']//span//a[2]").text.strip},
+                                  :probability_of_precipitation => { :volume     => request.xpath("//div[@class='box-prev-completa'][#{count}]//li[@class='prob-chuva-prev-completa list-style-none']/span//a[1]").text.strip,
+                                                                     :percentage => request.xpath("//div[@class='box-prev-completa'][#{count}]//li[@class='prob-chuva-prev-completa list-style-none']/span//a[2]").text.strip},
                                   :moisture_relative_complete   => { :max => request.xpath("//div[@class='box-prev-completa'][#{count}]//li[@class='umidade-relativa-prev-completa list-style-none']/span[2]").text.strip,
                                                                      :min => request.xpath("//div[@class='box-prev-completa'][#{count}]//li[@class='umidade-relativa-prev-completa list-style-none']/span[3]").text.strip},
                                   :temperature                  => { :max => request.xpath("//div[@class='box-prev-completa'][#{count}]//span[@class='max']").text.strip,
@@ -142,15 +169,6 @@ class PrevisaoClimaTempo
                                   :sunrise                      => request.xpath("//div[@class='box-prev-completa'][#{count}]//div[@class='por-do-sol']/span[3]").text.strip,
                                   :sunset                       => request.xpath("//div[@class='box-prev-completa'][#{count}]//div[@class='por-do-sol']/span[6]").text.strip
                               }
-                              
-         @previsoes[count][:wind] = { :velocity  => @previsoes[count][:wind][/(\d+)/]+"km/h" ,
-                                      :direction => wind[@previsoes[count][:wind].gsub("#{@previsoes[count][:wind][/(\d+)/]}km/h","")]
-                                    }
-         @probability_of_precipitation = @previsoes[count][:probability_of_precipitation].split('mm')                           
-                                    
-         @previsoes[count][:probability_of_precipitation] = { :volume     => @probability_of_precipitation[0]+"mm" ,
-                                                              :percentage => @probability_of_precipitation[1]
-                                                            }
           
         count+=1
       end
@@ -179,7 +197,7 @@ class PrevisaoClimaTempo
          @previsoes[count] = {
                                   :date                         => request.xpath("//div[@class='box-prev-tendencia'][#{count}]//span[@class='data-prev']").text.strip+"/"+Time.now().year.to_s,
                                   :condition                    => request.xpath("//div[@class='box-prev-tendencia'][#{count}]//div[@class='frase-previsao-prev-tendencia']").text.strip,
-                                  :probability_of_precipitation => request.xpath("//div[@class='box-prev-completa'][#{count}]//li[@class='prob-chuva-prev-completa list-style-none']/span[2]").text.strip,
+                                  :probability_of_precipitation => request.xpath("//div[@class='box-prev-tendencia'][#{count}]//li[@class='prob-chuva-prev-tendencia list-style-none']/span[2]").text.strip,
                                   :temperature                  => { :max => request.xpath("//div[@class='box-prev-tendencia'][#{count}]//span[@class='max']").text.strip,
                                                                      :min => request.xpath("//div[@class='box-prev-tendencia'][#{count}]//span[@class='min']").text.strip}
                               }
@@ -231,22 +249,44 @@ class PrevisaoClimaTempo
       
    def wind
      {
-       "N" => "Norte",
-       "S" => "Sul",
-       "E" => "Leste",
-       "W" => "Oeste",
-       "NE" => "Nordeste",
-       "NW" => "Noroeste",
-       "SE" => "Sudeste",
-       "SW" => "Sudoeste",
-       "ENE" => "Lés-nordeste",
-       "ESE" => "Lés-sudeste",
-       "SSE" => "Su-sudeste",
-       "NNE" => "Nor-nordeste",
-       "NNW" => "Nor-noroeste",
-       "SSW" => "Su-sudoeste",
-       "WSW" => "Oés-sudoeste",
-       "WNW" => "Oés-noroeste"
+       "br" => 
+         {
+           "N"   => "Norte",
+           "S"   => "Sul",
+           "E"   => "Leste",
+           "W"   => "Oeste",
+           "NE"  => "Nordeste",
+           "NW"  => "Noroeste",
+           "SE"  => "Sudeste",
+           "SW"  => "Sudoeste",
+           "ENE" => "Les-nordeste",
+           "ESE" => "Lés-sudeste",
+           "SSE" => "Su-sudeste",
+           "NNE" => "Nor-nordeste",
+           "NNW" => "Nor-noroeste",
+           "SSW" => "Su-sudoeste",
+           "WSW" => "Oés-sudoeste",
+           "WNW" => "Oés-noroeste"
+         },
+       "en" => 
+         {
+           "N"    => "North",
+           "S"    => "South",
+           "E"    => "East",
+           "W"    => "West",
+           "NE"   => "Northeast",
+           "NW"   => "Northwest",
+           "SE"   => "Southeast",
+           "SW"   => "Southwest",
+           "ENE"  => "east-northeast",
+           "ESE"  => "east-southeast",
+           "SSE"  => "south-southeast",
+           "NNE"  => "north-northeast",
+           "NNO"  => "north-northwest",
+           "SSWO" => "south-southwest",
+           "OSO"  => "west-southwest",
+           "ONO"  => "west-northwest"
+         }
      }
    end
    
@@ -298,9 +338,6 @@ class PrevisaoClimaTempo
                      previsao.at_xpath('maxima').text,
                      previsao.at_xpath('minima').text,
                      previsao.at_xpath('iuv') ? previsao.at_xpath('iuv').text : "Nao informado.")
-     
-
-     
    end
   
 end
