@@ -101,7 +101,7 @@ class PrevisaoClimaTempo
   #
   # Arguments:
   #
-   def byLatitude()
+   def byGeoPosition()
       
       days = Array.new
    
