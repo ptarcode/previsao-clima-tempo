@@ -38,7 +38,7 @@ From Webservice
      
      Returns a collection of objects PrevisaoDia with information of 7 days referenced.
      latitude 22º90'S (-22.90) e longitude 47º06'W (-47.06)
-     PrevisaoClimaTempo.new(:lat => '-22.90', :long => '-47.06').byLatitude()
+     PrevisaoClimaTempo.new(:lat => '-22.90', :long => '-47.06').byGeoPosition()
      
 From Page(contains more information than is extracted from the webservice)
      
